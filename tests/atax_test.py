@@ -3,12 +3,6 @@ import pytest
 from skattplot.atax import ATax
 
 
-def test_out_of_bounds():
-    atax = ATax()
-    with pytest.raises(AssertionError):
-        atax.get(-1)
-
-
 @pytest.mark.parametrize('tax_table_number,gross_monthly_salary,expected_tax_deduction', [
     (29, 0, 0),
     (29, 1, 0),
