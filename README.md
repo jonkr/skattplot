@@ -37,3 +37,12 @@ Note: Before running the tests, make sure you have initialized your `venv` and i
 To have pytest re-run on code changes, instead do:
 
     $ ptw -c
+
+
+## Adding updated A-tax rate data
+
+The raw data from Skatteverket in Sweden is located here:
+
+    $ ls -l ./skattplott/data/
+
+The files here are `*.txt` files (fixed width columns) downloadable from [Skatteverket](https://www.skatteverket.se/specialversionerforprogramforetagmfl.4.319dc1451507f2f99e86ee.html).
