@@ -89,10 +89,14 @@ class TableBuilder:
         self.table = []
 
     def build(self):
-        with open(self.RAW_DATA_FILE) as raw_lines:
-            for raw_line in raw_lines:
-                self.add_line(raw_line)
+        for raw_line in self._raw_lines():
+            self._add_line(raw_line)
         return self.table
+
+    def _raw_lines(self):
+        with open(self.RAW_DATA_FILE) as lines:
+            for line in lines:
+                yield line
 
     def _append_line(self, raw_row):
         if raw_row.row_type == RawRow.AMOUNT_ROW_TYPE_INDICATOR:
@@ -100,7 +104,7 @@ class TableBuilder:
         else:
             self.table.append(PercentageRow(raw_row))
 
-    def add_line(self, raw_line):
+    def _add_line(self, raw_line):
         raw_row = RawRow(raw_line)
         if self.table_number == raw_row.table_number:
             self._append_line(raw_row)
@@ -115,7 +119,6 @@ class ATax:
     def get(self, gross_salary):
         if not self.table:
             self.table = TableBuilder(self.table_number).build()
-
         if gross_salary <= 0:
             return 0
         gross_salary = round(gross_salary, 0)
