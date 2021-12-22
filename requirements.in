@@ -1,0 +1,5 @@
+# Top-level dependencies, managed by humans
+jupyter==1.*
+matplotlib==3.*
+pytest==6.*
+pytest-watch==4.*
