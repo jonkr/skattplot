@@ -82,9 +82,17 @@ class PercentageRow:
 
 class TableBuilder:
 
+    RAW_DATA_FILE = './skattplot/data/monthly_tax_2021.txt'
+
     def __init__(self, table_number):
         self.table_number = table_number
         self.table = []
+
+    def build(self):
+        with open(self.RAW_DATA_FILE) as raw_lines:
+            for raw_line in raw_lines:
+                self.add_line(raw_line)
+        return self.table
 
     def _append_line(self, raw_row):
         if raw_row.row_type == RawRow.AMOUNT_ROW_TYPE_INDICATOR:
@@ -100,22 +108,14 @@ class TableBuilder:
 
 class ATax:
 
-    VALID_TABLE_NUMBERS = range(29, 40 +1)
-    DEFAULT_TABLE_NUMBER = 30
-
-    RAW_DATA_FILE = './skattplot/data/monthly_tax_2021.txt'
-
-    def __init__(self, table_number=DEFAULT_TABLE_NUMBER):
-        self.table = self._read_tax_table(table_number)
-
-    def _read_tax_table(self, table_number):
-        table_builder = TableBuilder(table_number)
-        with open(self.RAW_DATA_FILE) as raw_lines:
-            for raw_line in raw_lines:
-                table_builder.add_line(raw_line)
-        return table_builder.table
+    def __init__(self, table_number='30'):
+        self.table = None
+        self.table_number = table_number
 
     def get(self, gross_salary):
+        if not self.table:
+            self.table = TableBuilder(self.table_number).build()
+
         if gross_salary <= 0:
             return 0
         gross_salary = round(gross_salary, 0)
