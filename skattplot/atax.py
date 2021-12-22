@@ -6,16 +6,17 @@ class RawRow:
 
     Knows how to get the values from the fixed width columns.
     """
-    VALID_TABLE_NUMBERS = range(29, 40 +1)
-    AMOUNT_ROW_TYPE_INDICATOR = 'B'
-    PERCENTAGE_ROW_TYPE_INDICATOR = '%'
+
+    VALID_TABLE_NUMBERS = range(29, 40 + 1)
+    AMOUNT_ROW_TYPE_INDICATOR = "B"
+    PERCENTAGE_ROW_TYPE_INDICATOR = "%"
     VALID_TYPE_INDICATORS = (
         AMOUNT_ROW_TYPE_INDICATOR,
         PERCENTAGE_ROW_TYPE_INDICATOR,
     )
 
     def __init__(self, raw_line):
-        assert raw_line[0:2] == '30', 'Unexpected line format'
+        assert raw_line[0:2] == "30", "Unexpected line format"
         self._line = raw_line
 
     @property
@@ -30,8 +31,8 @@ class RawRow:
 
     @property
     def upper_bound(self):
-        if self._line[12:19] == '       ':  # last line in table
-            return float('inf')
+        if self._line[12:19] == "       ":  # last line in table
+            return float("inf")
         else:
             return int(self._line[12:19])
 
@@ -53,7 +54,7 @@ class RawRow:
 class AmountRow:
     """Represents a row with explicit tax decuction amount"""
 
-    VALID_ROW_TYPE_INDICATOR = 'B'
+    VALID_ROW_TYPE_INDICATOR = "B"
 
     def __init__(self, raw_row):
         assert raw_row.row_type == self.VALID_ROW_TYPE_INDICATOR
@@ -68,7 +69,7 @@ class AmountRow:
 class PercentageRow:
     """Represents a row with tax deducation percentage instead of explicit amount"""
 
-    VALID_ROW_TYPE_INDICATOR = '%'
+    VALID_ROW_TYPE_INDICATOR = "%"
 
     def __init__(self, raw_row):
         assert raw_row.row_type == self.VALID_ROW_TYPE_INDICATOR
@@ -77,12 +78,12 @@ class PercentageRow:
         self.tax_rate = raw_row.tax
 
     def get_tax(self, gross_salary):
-        return round(float(self.tax_rate)/100 * gross_salary)
+        return round(float(self.tax_rate) / 100 * gross_salary)
 
 
 class TableBuilder:
 
-    RAW_DATA_FILE = './skattplot/data/monthly_tax_2021.txt'
+    RAW_DATA_FILE = "./skattplot/data/monthly_tax_2021.txt"
 
     def __init__(self, table_number):
         self.table_number = table_number
@@ -111,8 +112,7 @@ class TableBuilder:
 
 
 class ATax:
-
-    def __init__(self, table_number='30'):
+    def __init__(self, table_number="30"):
         self.table = None
         self.table_number = table_number
 
