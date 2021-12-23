@@ -116,9 +116,12 @@ class ATax:
         self.table = None
         self.table_number = table_number
 
-    def get(self, gross_salary):
+    def _build(self):
         if not self.table:
             self.table = TableBuilder(self.table_number).build()
+
+    def get(self, gross_salary):
+        self._build()
         if gross_salary <= 0:
             return 0
         gross_salary = round(gross_salary, 0)
@@ -127,3 +130,10 @@ class ATax:
         for row in self.table:
             if row.lower_bound <= gross_salary <= row.upper_bound:
                 return row.get_tax(gross_salary)
+
+    @property
+    def bounds(self):
+        self._build()
+        for row in self.table:
+            yield row.lower_bound
+            yield row.upper_bound if row.upper_bound != float("inf") else 2 * row.lower_bound

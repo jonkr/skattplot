@@ -3,3 +3,4 @@ jupyter==1.*
 matplotlib==3.*
 pytest==6.*
 pytest-watch==4.*
+seaborn==0.11.*
