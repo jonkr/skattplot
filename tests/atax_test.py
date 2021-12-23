@@ -1,6 +1,6 @@
 import pytest
 
-from skattplot.atax import ATax
+from atax import ATax
 
 
 @pytest.mark.parametrize(

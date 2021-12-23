@@ -1,6 +1,6 @@
 # Skattplott
 
-A Jupyter Notebook for calculating & visualising salary tax rates in Sweden.
+A Jupyter Notebook that visualises salary tax rates in Sweden. It uses the local Python package `atax` for the calculations. `atax` is a basic table-lookup-wrapper around raw text data files from Skatteverket.
 
 It produces plots like this one:
 ![plot of preliminary a-tax](example_plot.png "Preliminary A-tax 2021")
@@ -43,6 +43,6 @@ To have pytest re-run on code changes, instead do:
 
 The raw data from Skatteverket in Sweden is located here:
 
-    $ ls -l ./skattplott/data/
+    $ ls -l ./atax/data/
 
 The files here are `*.txt` files (fixed width columns) downloadable from [Skatteverket](https://www.skatteverket.se/specialversionerforprogramforetagmfl.4.319dc1451507f2f99e86ee.html).

@@ -1,5 +1,3 @@
-import re
-
 
 class RawRow:
     """Raw input line
@@ -83,7 +81,7 @@ class PercentageRow:
 
 class TableBuilder:
 
-    RAW_DATA_FILE = "./skattplot/data/monthly_tax_2021.txt"
+    RAW_DATA_FILE = "./atax/data/monthly_tax_2021.txt"
 
     def __init__(self, table_number):
         self.table_number = table_number
