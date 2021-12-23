@@ -1,3 +1,7 @@
+import importlib.resources as pkg_resources
+import os
+
+from . import data
 
 class RawRow:
     """Raw input line
@@ -81,8 +85,6 @@ class PercentageRow:
 
 class TableBuilder:
 
-    RAW_DATA_FILE = "./atax/data/monthly_tax_2021.txt"
-
     def __init__(self, table_number):
         self.table_number = table_number
         self.table = []
@@ -93,9 +95,8 @@ class TableBuilder:
         return self.table
 
     def _raw_lines(self):
-        with open(self.RAW_DATA_FILE) as lines:
-            for line in lines:
-                yield line
+        for line in pkg_resources.open_text(data, "monthly_tax_2021.txt"):
+            yield line
 
     def _append_line(self, raw_row):
         if raw_row.row_type == RawRow.AMOUNT_ROW_TYPE_INDICATOR:
@@ -110,13 +111,14 @@ class TableBuilder:
 
 
 class ATax:
-    def __init__(self, table_number="30"):
+    def __init__(self, table_number=30):
         self.table = None
         self.table_number = table_number
 
     def _build(self):
         if not self.table:
             self.table = TableBuilder(self.table_number).build()
+            assert len(self.table) > 0, 'Too few rows parsed'
 
     def get(self, gross_salary):
         self._build()
