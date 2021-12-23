@@ -136,4 +136,9 @@ class ATax:
         self._build()
         for row in self.table:
             yield row.lower_bound
-            yield row.upper_bound if row.upper_bound != float("inf") else 2 * row.lower_bound
+            if row.upper_bound != float("inf"):
+                yield row.upper_bound
+            else:
+                # Last row in table, tax rate is constant from here on.
+                # We fake a reasonable value to get a nice line when plotting.
+                yield 2 * row.lower_bound
