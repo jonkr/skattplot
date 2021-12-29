@@ -33,3 +33,17 @@ def test_lookup_default_tax_table(
 ):
     atax = ATax(tax_table_number)
     assert atax.get(gross_monthly_salary) == expected_tax_deduction
+
+
+@pytest.mark.parametrize(
+    "age,gross_monthly_salary,expected_tax_deduction",
+    [
+        (64, 35001, 7874),
+        (65, 35001, 5280),
+    ],
+)
+def test_lookup_tax_table_varying_age(
+    age, gross_monthly_salary, expected_tax_deduction
+):
+    atax = ATax(table_number=30, age=age)
+    assert atax.get(gross_monthly_salary) == expected_tax_deduction

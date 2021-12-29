@@ -47,7 +47,26 @@ class RawRow:
     @property
     def tax(self):
         """Either the tax deduction amount or the tax percentage"""
+        return self.tax_column_1
+
+    @property
+    def tax_column_1(self):
+        """Salary tax for individuals aged < 65 at start of income year
+
+        Either the tax deduction amount or the tax percentage.
+        """
         _tax = int(self._line[19:24])
+        if self.row_type == self.PERCENTAGE_ROW_TYPE_INDICATOR:
+            assert 0 <= _tax <= 100  # ensure valid percentage
+        return _tax
+
+    @property
+    def tax_column_3(self):
+        """Salary tax for individuals aged >= 65 at start of income year
+
+        Either the tax deduction amount or the tax percentage.
+        """
+        _tax = int(self._line[29:34])
         if self.row_type == self.PERCENTAGE_ROW_TYPE_INDICATOR:
             assert 0 <= _tax <= 100  # ensure valid percentage
         return _tax
@@ -58,11 +77,17 @@ class AmountRow:
 
     VALID_ROW_TYPE_INDICATOR = "B"
 
-    def __init__(self, raw_row):
+    def __init__(self, age, raw_row):
         assert raw_row.row_type == self.VALID_ROW_TYPE_INDICATOR
         self.lower_bound = raw_row.lower_bound
         self.upper_bound = raw_row.upper_bound
-        self._tax = raw_row.tax
+        self._tax = self._pick_column(age, raw_row)
+
+    def _pick_column(self, age, raw_row):
+        if age < 65:
+            return raw_row.tax_column_1
+        else:
+            return raw_row.tax_column_3
 
     def get_tax(self, gross_salary):
         return self._tax
@@ -73,11 +98,17 @@ class PercentageRow:
 
     VALID_ROW_TYPE_INDICATOR = "%"
 
-    def __init__(self, raw_row):
+    def __init__(self, age, raw_row):
         assert raw_row.row_type == self.VALID_ROW_TYPE_INDICATOR
         self.lower_bound = raw_row.lower_bound
         self.upper_bound = raw_row.upper_bound
-        self.tax_rate = raw_row.tax
+        self.tax_rate = self._pick_column(age, raw_row)
+
+    def _pick_column(self, age, raw_row):
+        if age < 65:
+            return raw_row.tax_column_1
+        else:
+            return raw_row.tax_column_3
 
     def get_tax(self, gross_salary):
         return round(float(self.tax_rate) / 100 * gross_salary)
@@ -85,8 +116,9 @@ class PercentageRow:
 
 class TableBuilder:
 
-    def __init__(self, table_number):
+    def __init__(self, table_number, age):
         self.table_number = table_number
+        self.age = age
         self.table = []
 
     def build(self):
@@ -100,9 +132,9 @@ class TableBuilder:
 
     def _append_line(self, raw_row):
         if raw_row.row_type == RawRow.AMOUNT_ROW_TYPE_INDICATOR:
-            self.table.append(AmountRow(raw_row))
+            self.table.append(AmountRow(self.age, raw_row))
         else:
-            self.table.append(PercentageRow(raw_row))
+            self.table.append(PercentageRow(self.age, raw_row))
 
     def _add_line(self, raw_line):
         raw_row = RawRow(raw_line)
@@ -111,25 +143,32 @@ class TableBuilder:
 
 
 class ATax:
-    def __init__(self, table_number=30):
+    def __init__(self, table_number=30, age=30):
         self.table = None
         self.table_number = table_number
+        self.age = age
 
     def _build(self):
         if not self.table:
-            self.table = TableBuilder(self.table_number).build()
+            self.table = TableBuilder(
+                table_number=self.table_number,
+                age=self.age,
+            ).build()
             assert len(self.table) > 0, 'Too few rows parsed'
 
-    def get(self, gross_salary):
+    def __call__(self, monthly_salary):
+        return self.get(monthly_salary)
+
+    def get(self, monthly_salary):
         self._build()
-        if gross_salary <= 0:
+        if monthly_salary <= 0:
             return 0
-        gross_salary = round(gross_salary, 0)
-        assert gross_salary >= self.table[0].lower_bound
-        assert gross_salary <= self.table[-1].upper_bound
+        monthly_salary = round(monthly_salary, 0)
+        assert monthly_salary >= self.table[0].lower_bound
+        assert monthly_salary <= self.table[-1].upper_bound
         for row in self.table:
-            if row.lower_bound <= gross_salary <= row.upper_bound:
-                return row.get_tax(gross_salary)
+            if row.lower_bound <= monthly_salary <= row.upper_bound:
+                return row.get_tax(monthly_salary)
 
     @property
     def bounds(self):
