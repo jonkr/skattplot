@@ -47,3 +47,32 @@ def test_lookup_tax_table_varying_age(
 ):
     atax = ATax(table_number=30, age=age)
     assert atax.get(gross_monthly_salary) == expected_tax_deduction
+
+
+
+@pytest.mark.parametrize(
+    "age,gross_monthly_salary,expected_tax_deduction",
+    [
+        (64, 35001, 7874),
+        (65, 35001, 5280),
+    ],
+)
+def test_lookup_tax_table_varying_age(
+    age, gross_monthly_salary, expected_tax_deduction
+):
+    atax = ATax(table_number=30, age=age)
+    assert atax.get(gross_monthly_salary) == expected_tax_deduction
+
+
+@pytest.mark.parametrize(
+    "income_year,gross_monthly_salary,expected_tax_deduction",
+    [
+        (2021, 35001, 7874),
+        (2022, 35001, 7708),
+    ],
+)
+def test_lookup_tax_table_varying_income_year(
+    income_year, gross_monthly_salary, expected_tax_deduction
+):
+    atax = ATax(table_number=30, age=64, income_year=income_year)
+    assert atax.get(gross_monthly_salary) == expected_tax_deduction

@@ -116,10 +116,12 @@ class PercentageRow:
 
 class TableBuilder:
 
-    def __init__(self, table_number, age):
+    def __init__(self, table_number, age, income_year=2021):
+        assert income_year in (2021, 2022), f'Year {income_year} not yet supported!'
         self.table_number = table_number
         self.age = age
         self.table = []
+        self.income_year = income_year
 
     def build(self):
         for raw_line in self._raw_lines():
@@ -127,7 +129,8 @@ class TableBuilder:
         return self.table
 
     def _raw_lines(self):
-        for line in pkg_resources.open_text(data, "monthly_tax_2021.txt"):
+        file_name = f"monthly_tax_{self.income_year}.txt"
+        for line in pkg_resources.open_text(data, file_name):
             yield line
 
     def _append_line(self, raw_row):
@@ -143,7 +146,8 @@ class TableBuilder:
 
 
 class ATax:
-    def __init__(self, table_number=30, age=30):
+    def __init__(self, table_number=30, age=30, income_year=2021):
+        self.income_year = income_year
         self.table = None
         self.table_number = table_number
         self.age = age
@@ -153,6 +157,7 @@ class ATax:
             self.table = TableBuilder(
                 table_number=self.table_number,
                 age=self.age,
+                income_year=self.income_year,
             ).build()
             assert len(self.table) > 0, 'Too few rows parsed'
 
