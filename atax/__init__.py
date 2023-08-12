@@ -3,13 +3,14 @@ import os
 
 from . import data
 
+
 class RawRow:
     """Raw input line
 
     Knows how to get the values from the fixed width columns.
     """
 
-    VALID_TABLE_NUMBERS = range(29, 40 + 1)
+    VALID_TABLE_NUMBERS = range(29, 42 + 1)
     AMOUNT_ROW_TYPE_INDICATOR = "B"
     PERCENTAGE_ROW_TYPE_INDICATOR = "%"
     VALID_TYPE_INDICATORS = (
@@ -115,9 +116,12 @@ class PercentageRow:
 
 
 class TableBuilder:
-
     def __init__(self, table_number, age, income_year=2021):
-        assert income_year in (2021, 2022), f'Year {income_year} not yet supported!'
+        assert income_year in (
+            2021,
+            2022,
+            2023,
+        ), f"Year {income_year} not yet supported!"
         self.table_number = table_number
         self.age = age
         self.table = []
@@ -159,7 +163,7 @@ class ATax:
                 age=self.age,
                 income_year=self.income_year,
             ).build()
-            assert len(self.table) > 0, 'Too few rows parsed'
+            assert len(self.table) > 0, "Too few rows parsed"
 
     def __call__(self, monthly_salary):
         return self.get(monthly_salary)
@@ -186,3 +190,16 @@ class ATax:
                 # Last row in table, tax rate is constant from here on.
                 # We fake a reasonable value to get a nice line when plotting.
                 yield 2 * row.lower_bound
+
+    @property
+    def lower_bounds(self):
+        self._build()
+        for row in self.table:
+            yield row.lower_bound
+
+    @property
+    def upper_bounds(self):
+        self._build()
+        for row in self.table:
+            if row.upper_bound != float("inf"):
+                yield row.upper_bound
